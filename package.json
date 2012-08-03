@@ -3,17 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "union": "0.3.0",
-    "flatiron": "0.2.6",
     "socket.io": "0.9.9"
-  },
-  "devDependencies": {
-    "api-easy": "0.3.2",
-    "vows": "0.6.1"
-  },
-  "scripts": {
-    "test": "vows --spec",
-    "start": "node app.js"
   },
   "name": "slidestepper",
   "author": "Elliott Foster",

@@ -1,13 +1,17 @@
-var flatiron = require('flatiron'),
-    path = require('path'),
-    app = flatiron.app;
+var pass = 'unasfe'; // TODO
+var io = require('socket.io').listen(3000);
 
-app.config.file({ file: path.join(__dirname, 'config', 'config.json') });
+io.sockets.on('connection', function(socket) {
+  socket.emit('connected');
+  console.log('yo dawg!');
 
-app.use(flatiron.plugins.http);
+  socket.on('authenticate', function(auth) {
+    if (auth === pass) {
+      socket.emit('authenticated', ':)');
 
-app.router.get('/', function () {
-  this.res.json({ 'hello': 'world' })
+      socket.on('navigateTo', function(command) {
+        socket.broadcast.emit('navigateTo', command);
+      });
+    }
+  });
 });
-
-app.start(3000);
