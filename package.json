@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "socket.io": "0.9.9"
+    "socket.io": "0.9.9",
+    "flatiron": "~0.2.8"
   },
   "name": "slidestepper",
   "author": "Elliott Foster",
