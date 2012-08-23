@@ -25,4 +25,4 @@ the current hash set.
 * Due to some wacky behavior with KeyboardEvents and webkit you'll likely need
 to shim in keyboard listeners for your slide deck. There's an example of doing
 this for reveal.js in ```client/slidestepper-client.reveal.js```.
-
+* ```keyboard.js``` polyfill sourced from [Calormen's W3C Keyboard Events Helper](http://calormen.com/polyfill/#keyboard).
