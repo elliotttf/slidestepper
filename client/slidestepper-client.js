@@ -3,14 +3,20 @@ var stepper = (function() {
     init: function(server, auth) {
       var self = this;
       self.auth = auth;
+      self.hash = window.location.hash;
       self.isAdmin = false;
+      self.listening = true;
       self.socket = io.connect(server);
 
-      if (typeof self.auth !== 'undefined') {
-        self.socket.on('connected', function() {
+      self.socket.on('connected', function(hash) {
+        // Allow the new client to catch up to the presenter.
+        if (hash) {
+          window.location.hash = hash;
+        }
+        if (typeof self.auth !== 'undefined') {
           self.authenticate();
-        });
-      }
+        }
+      });
 
       self.socket.on('authenticated', function() {
         self.isAdmin = true;
@@ -18,14 +24,48 @@ var stepper = (function() {
       });
 
       self.socket.on('navigateTo', function(command) {
-        if (!self.isAdmin) {
+        if (!self.isAdmin && self.listening) {
           self.navigateTo(command);
         }
       });
+
+      self.socket.on('hashChange', function(hash) {
+        self.hash = hash;
+      });
+
+      self.attachClientListeners();
+    },
+    attachListeners: function() {
+      var self = this;
+      document.addEventListener('keydown', function(e) {
+        self.emitKeyboardEvent('keydown', e);
+      }, false);
+      document.addEventListener('keyup', function(e) {
+        self.emitKeyboardEvent('keyup', e);
+      }, false);
+      document.addEventListener('keypress', function(e) {
+        self.emitKeyboardEvent('keypress', e);
+      }, false);
+      window.addEventListener('hashchange', function(e) {
+        self.emitHashChange(e);
+      }, false);
+    },
+    attachClientListeners: function() {
+      var self = this;
+      // Stop listening for keyboard events if the client navigated away
+      // from where the presenter is at.
+      document.addEventListener('keydown', function(e) {
+        if (!e.slidestepper) {
+          self.listening = false;
+        }
+      }, false);
     },
     authenticate: function(auth) {
       this.auth = auth || this.auth;
       this.socket.emit('authenticate', this.auth);
+    },
+    emitHashChange: function(e) {
+      this.socket.emit('hashChange', window.location.hash);
     },
     emitKeyboardEvent: function(type, e) {
       // Polyfill the key info if we don't have the keyIdentifier property.
@@ -51,18 +91,6 @@ var stepper = (function() {
         }
       };
       this.socket.emit('navigateTo', command);
-    },
-    attachListeners: function() {
-      var self = this;
-      document.addEventListener('keydown', function(e) {
-        self.emitKeyboardEvent('keydown', e);
-      }, false);
-      document.addEventListener('keyup', function(e) {
-        self.emitKeyboardEvent('keyup', e);
-      }, false);
-      document.addEventListener('keypress', function(e) {
-        self.emitKeyboardEvent('keypress', e);
-      }, false);
     },
     navigateTo: function(command) {
       if (command.type === 'keydown' || command.type === 'keyup' || command.type === 'keypress') {
@@ -98,6 +126,7 @@ var stepper = (function() {
         }
 
         if (e) {
+          e.slidestepper = true;
           document.body.dispatchEvent(e);
         }
       }
