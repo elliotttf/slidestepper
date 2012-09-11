@@ -7,6 +7,17 @@
     "flatiron": "~0.2.8"
   },
   "name": "slidestepper",
-  "author": "Elliott Foster",
-  "homepage": ""
+  "author": {
+    "name": "Elliott Foster",
+    "url": "http://codebrews.com"
+  },
+  "homepage": "http://github.com/elliotttf/slidestepper",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elliotttf/slidestepper.git"
+  },
+  "engines": {
+    "node": ">=0.8"
+  }
 }

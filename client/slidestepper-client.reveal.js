@@ -15,7 +15,7 @@ var stepperRevealShim = (function() {
    * Helper function to determine if the overivew is activated.
    */
   function overviewIsActive() {
-    return document.querySelector('.reveal').classList.contains('overview');;
+    return document.querySelector('.reveal').classList.contains('overview');
   }
 
   /**
@@ -26,7 +26,7 @@ var stepperRevealShim = (function() {
   function onDocumentKeyDown(event) {
     // Disregard the event if the target is editable, a
     // modifier is present, or the keyCode is set.
-    if (event.target.contentEditable != 'inherit' || event.keyCode !== 0 || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) {
+    if (event.target.contentEditable !== 'inherit' || event.keyCode !== 0 || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) {
        return;
     }
 
@@ -50,7 +50,15 @@ var stepperRevealShim = (function() {
       // end
       case 'End': Reveal.navigateTo(Number.MAX_VALUE); triggered = true; break;
       // space
-      case 'U+0020': case 'Spacebar': overviewIsActive() ? Reveal.toggleOverview() : Reveal.navigateNext(); triggered = true; break;
+      case 'U+0020': case 'Spacebar':
+        if (overviewIsActive()) {
+          Reveal.toggleOverview();
+        }
+        else {
+          Reveal.navigateNext();
+        }
+        triggered = true;
+        break;
       // return
       case 'Enter': if (overviewIsActive()) { Reveal.toggleOverview(); triggered = true; } break;
     }

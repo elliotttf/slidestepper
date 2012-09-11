@@ -16,6 +16,18 @@ On the presenter's client, open a JavaScript console and execute the following:
 stepper.authorize('superSecretPassword'); // Replace superSecretPassword with the presenter's password.
 ```
 
+## Building
+
+The client code is built with [grunt](http://gruntjs.com) and can be compiled
+by running:
+
+```
+grunt
+```
+
+from within the checkout. The distrubutable files will be copied to the ```dist```
+directory.
+
 ## Notes/ TODO
 
 * If a user breaks from the presentation there is not currently a way to catch

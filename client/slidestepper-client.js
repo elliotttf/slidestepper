@@ -1,5 +1,15 @@
 var stepper = (function() {
   return {
+    /**
+     * Constructor
+     *
+     * @param {string} server
+     *   The socket.io server's address.
+     * @param {string} auth
+     *   The (optional) authentication string. If present, the client
+     *   will attempt to authenticate as a presenter after the socket
+     *   is connected.
+     */
     init: function(server, auth) {
       var self = this;
       self.auth = auth;
@@ -31,25 +41,50 @@ var stepper = (function() {
 
       self.socket.on('hashChange', function(hash) {
         self.hash = hash;
+        if (self.listening) {
+          self.hashChange(hash);
+        }
       });
 
       self.attachClientListeners();
     },
+
+    /**
+     * Attaches presenter listeners which result en broadcasting
+     * navigation events to clients.
+     */
     attachListeners: function() {
       var self = this;
+
+      // Hash events.
+      window.addEventListener('hashchange', function(e) {
+        self.emitHashChange(e);
+      }, false);
+
+      // Key events.
       document.addEventListener('keydown', function(e) {
         self.emitKeyboardEvent('keydown', e);
-      }, false);
-      document.addEventListener('keyup', function(e) {
-        self.emitKeyboardEvent('keyup', e);
       }, false);
       document.addEventListener('keypress', function(e) {
         self.emitKeyboardEvent('keypress', e);
       }, false);
-      window.addEventListener('hashchange', function(e) {
-        self.emitHashChange(e);
+      document.addEventListener('keyup', function(e) {
+        self.emitKeyboardEvent('keyup', e);
+      }, false);
+
+      // Mouse events.
+      document.addEventListener('mouseup', function(e) {
+        self.emitMouseEvent('mouseup', e);
+      }, false);
+      document.addEventListener('click', function(e) {
+        self.emitMouseEvent('click', e);
       }, false);
     },
+
+    /**
+     * Attaches a keydown listener to stop following the presenter
+     * if the client navigates away from the slidedhow's position.
+     */
     attachClientListeners: function() {
       var self = this;
       // Stop listening for keyboard events if the client navigated away
@@ -60,13 +95,36 @@ var stepper = (function() {
         }
       }, false);
     },
+
+    /**
+     * Sends an authentication request to the server.
+     *
+     * @param {string} auth
+     *   The authentication string to use.
+     */
     authenticate: function(auth) {
       this.auth = auth || this.auth;
       this.socket.emit('authenticate', this.auth);
     },
+
+    /**
+     * Broadcasts a hash change event to conneted clients.
+     *
+     * @param {object} e
+     *   The event object.
+     */
     emitHashChange: function(e) {
       this.socket.emit('hashChange', window.location.hash);
     },
+
+    /**
+     * Broadcasts a keyboard event to connected clients.
+     *
+     * @param {string} type
+     *   The keyboard event type.
+     * @param {object} e
+     *   The event object.
+     */
     emitKeyboardEvent: function(type, e) {
       // Polyfill the key info if we don't have the keyIdentifier property.
       if (typeof e.keyIdentifier === 'undefined') {
@@ -92,6 +150,13 @@ var stepper = (function() {
       };
       this.socket.emit('navigateTo', command);
     },
+
+    /**
+     * Replays a navigation event on the client.
+     *
+     * @param {object} command
+     *   Command variables to rebuild and dispatch a navigation event.
+     */
     navigateTo: function(command) {
       if (command.type === 'keydown' || command.type === 'keyup' || command.type === 'keypress') {
         var e = null;
@@ -130,7 +195,16 @@ var stepper = (function() {
           document.body.dispatchEvent(e);
         }
       }
+    },
+
+    /**
+     * Updates the client hash.
+     *
+     * @param {string} hash
+     */
+    hashChange: function(hash) {
+      window.location.hash = hash;
     }
-  }
+  };
 }());
 
